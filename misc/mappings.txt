@@ -1,0 +1,36 @@
+add device 5: /dev/input/event5
+  name:     "huawei,ts_kit"
+  events:
+    KEY (0001): 003b  003c  003d  003e  003f  0041  0042  0043 
+                0044  0057  0058  00bd  00be  00bf  00c0  00c1 
+                0145  014a 
+    ABS (0003): 0000  : value 0, min 0, max 1080, fuzz 0, flat 0, resolution 0
+                0001  : value 0, min 0, max 2160, fuzz 0, flat 0, resolution 0
+                0018  : value 0, min 0, max 255, fuzz 0, flat 0, resolution 0
+                0032  : value 0, min 0, max 100, fuzz 0, flat 0, resolution 0
+                0033  : value 0, min 0, max 100, fuzz 0, flat 0, resolution 0
+                0035  : value 0, min 0, max 1080, fuzz 0, flat 0, resolution 0
+                0036  : value 0, min 0, max 2160, fuzz 0, flat 0, resolution 0
+                0039  : value 0, min 0, max 15, fuzz 0, flat 0, resolution 0
+                003a  : value 0, min 0, max 255, fuzz 0, flat 0, resolution 0
+
+
+
+
+add device 1: /dev/input/event5
+  name:     "huawei,ts_kit"
+  events:
+    KEY (0001): KEY_F1                KEY_F2                KEY_F3                KEY_F4               
+                KEY_F5                KEY_F7                KEY_F8                KEY_F9               
+                KEY_F10               KEY_F11               KEY_F12               KEY_F19              
+                KEY_F20               KEY_F21               KEY_F22               KEY_F23              
+                BTN_TOOL_FINGER       BTN_TOUCH            
+    ABS (0003): ABS_X                 : value 0, min 0, max 1080, fuzz 0, flat 0, resolution 0
+                ABS_Y                 : value 0, min 0, max 2160, fuzz 0, flat 0, resolution 0
+                ABS_PRESSURE          : value 0, min 0, max 255, fuzz 0, flat 0, resolution 0
+                ABS_MT_WIDTH_MAJOR    : value 0, min 0, max 100, fuzz 0, flat 0, resolution 0
+                ABS_MT_WIDTH_MINOR    : value 0, min 0, max 100, fuzz 0, flat 0, resolution 0
+                ABS_MT_POSITION_X     : value 0, min 0, max 1080, fuzz 0, flat 0, resolution 0
+                ABS_MT_POSITION_Y     : value 0, min 0, max 2160, fuzz 0, flat 0, resolution 0
+                ABS_MT_TRACKING_ID    : value 0, min 0, max 15, fuzz 0, flat 0, resolution 0
+                ABS_MT_PRESSURE       : value 0, min 0, max 255, fuzz 0, flat 0, resolution 0
