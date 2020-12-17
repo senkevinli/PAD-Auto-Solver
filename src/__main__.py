@@ -1,6 +1,8 @@
 import sys
+import subprocess
 import re
 from ppadb.client import Client
+from uiautomator import device as d
 
 BOARD_ROWS = 5
 BOARD_COLS = 6
@@ -106,22 +108,12 @@ if __name__ == '__main__':
     device = devices[0]
 
     coordinates = configure_input(device)
-    path_coord = path_string_to_coord ('RRRD', coordinates, (0,0))
+    path_coord = path_string_to_coord ('RRRDDD', coordinates, (0,0))
 
     if path_coord is None:
         print('An error occurred.')
         sys.exit(0)
 
-    prev = path_coord[0]
-
-    command = '' 
-    for i, coord in enumerate(path_coord[1:]):
-        chain = '& '
-        if i is len(path_coord[1:]) - 1:
-            chain = ''
-
-        command += f'input touchscreen swipe {prev[0]} {prev[1]} {coord[0]} {coord[1]} 1000 {chain}'
-        prev = coord
-    print(command)
-    device.shell(command)
+    print (path_coord)
+    d.swipePoints(path_coord, steps=10)
 
