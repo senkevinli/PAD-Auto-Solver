@@ -89,7 +89,7 @@ def path_string_to_coord(path_string, coordinates, start):
             map(lambda src, change: src + change, (x,y), direction)
         )
 
-        if x < 0 or x >= BOARD_ROWS or y < 0 or y >= BOARD_COLS:
+        if x < 0 or x >= BOARD_COLS or y < 0 or y >= BOARD_ROWS:
             return None
 
     path_coord.append(coordinates[y][x])
@@ -108,12 +108,11 @@ if __name__ == '__main__':
     device = devices[0]
 
     coordinates = configure_input(device)
-    path_coord = path_string_to_coord ('RRRDDD', coordinates, (0,0))
+    path_coord = path_string_to_coord ('RRRDDDLLLUURRDDLL', coordinates, (0,0))
 
     if path_coord is None:
         print('An error occurred.')
         sys.exit(0)
 
-    print (path_coord)
-    d.swipePoints(path_coord, steps=10)
+    d.swipePoints(path_coord, steps=3)
 
