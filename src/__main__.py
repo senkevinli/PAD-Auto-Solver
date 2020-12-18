@@ -1,8 +1,8 @@
 import sys
-import subprocess
 import re
 from ppadb.client import Client
 from uiautomator import device as d
+from . import Interface
 
 BOARD_ROWS = 5
 BOARD_COLS = 6
@@ -98,21 +98,29 @@ def path_string_to_coord(path_string, coordinates, start):
 
 
 if __name__ == '__main__':
-    adb = Client(host='127.0.0.1', port=5037)
-    devices = adb.devices()
+
+    interface = Interface(BOARD_ROWS, BOARD_COLS, WIDTH_RATIO, HEIGHT_RATIO)
+
+    if (not interface.setup_device()):
+        print('Error in setting up device. Please check if device is attached.')
+        sys.exit(0)
     
-    if len(devices) == 0:
-        print('No devices attached.')
-        sys.exit(0)
 
-    device = devices[0]
+    # adb = Client(host='127.0.0.1', port=5037)
+    # devices = adb.devices()
+    
+    # if len(devices) == 0:
+    #     print('No devices attached.')
+    #     sys.exit(0)
 
-    coordinates = configure_input(device)
-    path_coord = path_string_to_coord ('RRRDDDLLLUURRDDLL', coordinates, (0,0))
+    # device = devices[0]
 
-    if path_coord is None:
-        print('An error occurred.')
-        sys.exit(0)
+    # coordinates = configure_input(device)
+    # path_coord = path_string_to_coord ('RRRDDDLLLUURRDDLL', coordinates, (0,0))
 
-    d.swipePoints(path_coord, steps=3)
+    # if path_coord is None:
+    #     print('An error occurred.')
+    #     sys.exit(0)
+
+    # d.swipePoints(path_coord, steps=3)
 
