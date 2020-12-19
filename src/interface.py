@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import re
+from os import path, remove
 from ppadb.client import Client
 from uiautomator import AutomatorDevice
 from copy import deepcopy
+from PIL import Image
 from typing import List, Tuple
 from pad_types import Directions
+
+dirname = path.dirname(__file__)
+LOCATION = path.join(dirname, 'screen.png')
 
 class Interface:
     def __init__(
@@ -36,10 +41,10 @@ class Interface:
         self.device = None
         self.coordinates = None
 
-        self.top_left = None
-        self.top_right = None
-        self.bottom_left = None
-        self.bottom_right = None
+        self.top = None
+        self.right = None
+        self.left = None
+        self.bottom = None
 
 
     def setup_device(self) -> bool:
@@ -83,7 +88,7 @@ class Interface:
         # PAD uses black bars to pad screen in order to fit aspect ratio.
         # Calculate the height of the bars so that we can locate lower left corner.
         game_res_height = (res_width * self.height_ratio) // self.width_ratio
-        bar_height = (usable_res_height - game_res_height) // 2
+        bar_height = (usable_res_height - game_res_height)
 
         bottom_y = res_height - (navbar_height + bar_height)
 
@@ -108,10 +113,10 @@ class Interface:
         self.device = AutomatorDevice()
 
         # For PAD board dimensions/coordinates
-        self.bottom_left = (0, bottom_y)
-        self.bottom_right = (res_width, bottom_y)
-        self.top_left = (0, top_y)
-        self.top_right = (res_width, top_y)
+        self.bottom = bottom_y
+        self.top = top_y
+        self.left = 0
+        self.right = res_width
 
         return True
 
@@ -175,5 +180,20 @@ class Interface:
 
         mod_steps = self.ms // 5
         self.device.swipePoints(path_coord, mod_steps)
+    
+    def board_screencap(self) -> Image:
+        """
+            Captures the screen and returns the cropped
+            board as a PIL.Image.
+        """
+        self.device.screenshot(LOCATION)
+        im = Image.open(LOCATION)
+
+        # Crop image. Remove image after crop.
+        ret = im.crop((self.left, self.top, self.right, self.bottom))
+        remove(LOCATION)
+
+        ret.show()
+        return ret
 
 

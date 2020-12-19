@@ -22,5 +22,6 @@ if __name__ == '__main__':
     dir = [Directions.LEFT, Directions.LEFT, Directions.UP, Directions.UP, Directions.RIGHT,
            Directions.DOWN]
 
-    interface.input_swipes(dir, (4,2))
+    # interface.input_swipes(dir, (4,2))
+    interface.board_screencap()
 
