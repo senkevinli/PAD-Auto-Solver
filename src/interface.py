@@ -2,7 +2,10 @@
 
 import re
 from ppadb.client import Client
-from uiautomator import Device
+from uiautomator import AutomatorDevice
+from copy import deepcopy
+from typing import List, Tuple
+from pad_types import Directions
 
 class Interface:
     def __init__(
@@ -11,7 +14,7 @@ class Interface:
         board_cols: int = 6,
         width_ratio: int = 9,
         height_ratio: int = 16,
-        swipe_ms: int = 25
+        swipe_ms: int = 50
     ) -> None:
         """
         Args:
@@ -26,6 +29,7 @@ class Interface:
         self.board_rows = board_rows
         self.board_cols = board_cols
         self.width_ratio = width_ratio
+        self.height_ratio = height_ratio
         self.ms = swipe_ms
 
         # Device specific info.
@@ -83,7 +87,7 @@ class Interface:
 
         bottom_y = res_height - (navbar_height + bar_height)
 
-        # Calculate radius of orbs.
+        # Calculate radius of orbs and how much to shift when moving.
         radius = (res_width // self.board_cols) // 2
         change = (res_width) // self.board_cols
 
@@ -101,7 +105,7 @@ class Interface:
 
         # Set private variables.
         self.coordinates = coordinates
-        self.device = Device(device.shell('adb shell getprop ro.serialno'))
+        self.device = AutomatorDevice()
 
         # For PAD board dimensions/coordinates
         self.bottom_left = (0, bottom_y)
@@ -110,4 +114,66 @@ class Interface:
         self.top_right = (res_width, top_y)
 
         return True
+
+    def _path_to_coord(
+            self,
+            path: List[Directions],
+            start: Tuple[int, int]
+        ) -> List[Tuple[int, int]]:
+        """
+            Takes in a list of directions and converts it to 
+            actual pixel coordinates on the phone. Returns None
+            if errored.
+        """
+
+        x, y = start
+        if x < 0 or x >= self.board_cols or y < 0 or y >= self.board_rows:
+            return None
+        
+        if len(path) <= 1:
+            return None
+
+        path_coord = []
+
+        for op in path:
+            coord = self.coordinates[y][x]
+            path_coord.append(deepcopy(coord))
+
+            direction = op.value
+            
+            # Error if not present.
+            if direction is None:
+                return None
+
+            # Move x and y.
+            x, y = tuple(
+                map(lambda src, change: src + change, (x,y), direction)
+            )
+
+            if x < 0 or x >= self.board_cols or y < 0 or y >= self.board_rows:
+                return None
+
+        # Get the last coordinate.
+        path_coord.append(deepcopy(self.coordinates[y][x]))
+        return path_coord
+
+    def input_swipes(
+            self,
+            path: List[Directions],
+            start: Tuple[int, int]
+        ) -> None:
+        """
+            Takes in a list of directions and inputs
+            the swipes to the phone. Requires that `setup_device`
+            has been called.
+        """
+        path_coord = self._path_to_coord(path, start)
+
+        # If errored out, return None.
+        if not path_coord:
+            return None
+
+        mod_steps = self.ms // 5
+        self.device.swipePoints(path_coord, mod_steps)
+
 
