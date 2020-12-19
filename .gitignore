@@ -1,2 +1,3 @@
 .vscode/
+src/__pycache__/
 *.png

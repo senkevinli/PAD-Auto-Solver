@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
+
 import sys
-import re
 from interface import Interface
 from pad_types import Directions
 
