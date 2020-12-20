@@ -7,10 +7,11 @@ from ppadb.client import Client
 from uiautomator import AutomatorDevice
 from copy import deepcopy
 from typing import List, Tuple
-from pad_types import Directions
 
-dirname = path.dirname(__file__)
-LOCATION = path.join(dirname, 'screen.png')
+from .pad_types import Directions
+
+CUR_DIR = path.dirname(__file__)
+LOCATION = path.join(CUR_DIR, 'screen.png')
 
 class Interface:
     def __init__(

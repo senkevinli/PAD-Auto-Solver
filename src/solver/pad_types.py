@@ -20,7 +20,7 @@ class Orbs(Enum):
 class Directions(Enum):
     """
         Direction enums for board movements. Diagonal movements not implemented.
-        Value is a tuple (dx, dy)
+        Value is a tuple (dx, dy).
     """
     LEFT = (-1, 0)
     UP = (0, -1)

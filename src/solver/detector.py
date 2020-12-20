@@ -8,10 +8,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image
 from typing import List
-from pad_types import Orbs
+
+from .pad_types import Orbs
 
 CUR_DIR = os.path.dirname(__file__)
-REFERENCE = os.path.join(CUR_DIR, 'references')
+REFERENCE = os.path.join(CUR_DIR, '../references')
 
 THRESHOLD = 20
 

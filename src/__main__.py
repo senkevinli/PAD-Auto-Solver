@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
-from interface import Interface
-from pad_types import Directions
-from detector import detect
+from solver.interface import Interface
+from solver.pad_types import Directions
+from solver.detector import detect
 
 BOARD_ROWS = 5
 BOARD_COLS = 6
@@ -20,13 +20,8 @@ if __name__ == '__main__':
         print('Error in setting up device. Please check if device is attached.')
         sys.exit(0)
 
-    dir = [Directions.LEFT, Directions.LEFT, Directions.UP, Directions.UP, Directions.RIGHT,
-           Directions.DOWN]
-
-    # interface.input_swipes(dir, (4,2))
     raw_orbs = interface.board_screencap()
     detected = detect(raw_orbs)
 
     if (detected is None):
         print('Error in detection.')
-
