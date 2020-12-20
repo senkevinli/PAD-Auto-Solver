@@ -181,19 +181,18 @@ class Interface:
         mod_steps = self.ms // 5
         self.device.swipePoints(path_coord, mod_steps)
     
-    def board_screencap(self) -> List[Image.Image]:
+    def board_screencap(self) -> List[List[Image.Image]]:
         """
-            Captures the screen and returns the cropped
-            board as a PIL.Image.
+            Captures the screen and returns an array
+            of Pillow Images that contain the orbs.
         """
         self.device.screenshot(LOCATION)
         with Image.open(LOCATION) as im:
-            orbs = []
+            raw_orbs = []
 
-            # Get specfic orbs.
+            # Get the specific orb images.
             # Layout is like:
-            # 0 ... len(orbs[0])
-            # .
+            # 0 .. len(orbs[0])
             # .
             # .
             # len(orbs)
@@ -202,6 +201,7 @@ class Interface:
             dy = (self.bottom - self.top) // self.board_rows
 
             for row in range(self.board_rows):
+                orb_row = []
                 for col in range(self.board_cols):
                     orb = im.crop((
                         self.left + dx * col,
@@ -209,11 +209,13 @@ class Interface:
                         self.left + dx * (col + 1),
                         self.top + dy * (row + 1)
                     ))
-                    orbs.append(orb)
+                    orb_row.append(orb)
+                raw_orbs.append(orb_row)
 
             # Remove screencap after getting orbs.
-            remove(LOCATION)
-        return orbs
+        remove(LOCATION)
+
+        return raw_orbs
 
 
 

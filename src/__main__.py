@@ -3,6 +3,7 @@
 import sys
 from interface import Interface
 from pad_types import Directions
+from detector import detect
 
 BOARD_ROWS = 5
 BOARD_COLS = 6
@@ -23,5 +24,6 @@ if __name__ == '__main__':
            Directions.DOWN]
 
     # interface.input_swipes(dir, (4,2))
-    interface.board_screencap()
+    raw_orbs = interface.board_screencap()
+    detect(raw_orbs)
 
