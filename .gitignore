@@ -1,4 +1,5 @@
 .vscode/
+.converage
 __pycache__
 .pytest_cache/
 ./*.png
