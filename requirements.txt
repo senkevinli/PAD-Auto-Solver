@@ -2,3 +2,4 @@ pure-python-adb
 uiautomator
 opencv-python
 numpy
+Pillow
