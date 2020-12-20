@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import re
+from PIL import Image
 from os import path, remove
 from ppadb.client import Client
 from uiautomator import AutomatorDevice
 from copy import deepcopy
-from PIL import Image
 from typing import List, Tuple
 from pad_types import Directions
 
@@ -181,19 +181,39 @@ class Interface:
         mod_steps = self.ms // 5
         self.device.swipePoints(path_coord, mod_steps)
     
-    def board_screencap(self) -> Image:
+    def board_screencap(self) -> List[Image.Image]:
         """
             Captures the screen and returns the cropped
             board as a PIL.Image.
         """
         self.device.screenshot(LOCATION)
-        im = Image.open(LOCATION)
+        with Image.open(LOCATION) as im:
+            orbs = []
 
-        # Crop image. Remove image after crop.
-        ret = im.crop((self.left, self.top, self.right, self.bottom))
-        remove(LOCATION)
+            # Get specfic orbs.
+            # Layout is like:
+            # 0 ... len(orbs[0])
+            # .
+            # .
+            # .
+            # len(orbs)
 
-        ret.show()
-        return ret
+            dx = (self.right - self.left) // self.board_cols
+            dy = (self.bottom - self.top) // self.board_rows
+
+            for row in range(self.board_rows):
+                for col in range(self.board_cols):
+                    orb = im.crop((
+                        self.left + dx * col,
+                        self.top + dy * row,
+                        self.left + dx * (col + 1),
+                        self.top + dy * (row + 1)
+                    ))
+                    orbs.append(orb)
+
+            # Remove screencap after getting orbs.
+            remove(LOCATION)
+        return orbs
+
 
 
