@@ -25,5 +25,8 @@ if __name__ == '__main__':
 
     # interface.input_swipes(dir, (4,2))
     raw_orbs = interface.board_screencap()
-    detect(raw_orbs)
+    detected = detect(raw_orbs)
+
+    if (detected is None):
+        print('Error in detection.')
 

@@ -191,12 +191,6 @@ class Interface:
             raw_orbs = []
 
             # Get the specific orb images.
-            # Layout is like:
-            # 0 .. len(orbs[0])
-            # .
-            # .
-            # len(orbs)
-
             dx = (self.right - self.left) // self.board_cols
             dy = (self.bottom - self.top) // self.board_rows
 
@@ -212,10 +206,7 @@ class Interface:
                     orb_row.append(orb)
                 raw_orbs.append(orb_row)
 
-            # Remove screencap after getting orbs.
+        # Remove screencap after getting orbs.
         remove(LOCATION)
 
         return raw_orbs
-
-
-
