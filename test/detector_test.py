@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import os
 from src.solver.detector import detect
 from src.solver.pad_types import Orbs

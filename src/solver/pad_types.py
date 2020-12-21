@@ -16,6 +16,8 @@ class Orbs(Enum):
     BLUE = 4
     HEART = 5
 
+    CLEARED = 6
+
 @unique
 class Directions(Enum):
     """
