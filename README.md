@@ -2,7 +2,7 @@
 
 > Auto Solver for GungHo's Puzzle and Dragons.
 
-![Test](https://github.com/senkevinli/Pad-Auto-Solver/workflows/PAD_Solver/badge.svg)
+![Test](https://github.com/senkevinli/Pad-Auto-Solver/workflows/Tests/badge.svg)
 
 ## Requirements
 - An Android phone with Puzzles and Dragons installed.
