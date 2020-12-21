@@ -12,7 +12,10 @@ from .pad_types import Orbs
 CUR_DIR = os.path.dirname(__file__)
 REFERENCE = os.path.join(CUR_DIR, '../references')
 
-THRESHOLD = 20
+# Threshold of 30 seems to work consistently. Any lower
+# and there will be errors with detection for enhanced
+# orbs.
+THRESHOLD = 30
 
 def detect(
     raw_orbs: List[List[Image.Image]]
@@ -58,6 +61,8 @@ def _match_img(img: np.ndarray) -> Orbs:
         Matches a grayscale image with one of the
         .pngs in the specified folder.
     """
+    match_dist = {}
+
     dir = os.fsencode(REFERENCE)
     for file in os.listdir(dir):
         filename = os.fsdecode(file)
@@ -98,9 +103,13 @@ def _match_img(img: np.ndarray) -> Orbs:
 
             if len(matches) > 0:
                 orb_type = filename[:-4].upper()
-                return Orbs[orb_type]
+                match_dist.update({Orbs[orb_type]: len(matches)})
+    
+    # Error if no matches.
+    if not match_dist:
+        return None
 
-    # No matches found, error.
-    return None
+    # Return the orb with the highest number of matches
+    return max(match_dist, key=match_dist.get)
 
 

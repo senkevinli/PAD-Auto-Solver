@@ -4,6 +4,7 @@ import sys
 from solver.interface import Interface
 from solver.pad_types import Directions
 from solver.detector import detect
+from solver.board import Board
 
 BOARD_ROWS = 5
 BOARD_COLS = 6
@@ -25,3 +26,8 @@ if __name__ == '__main__':
 
     if (detected is None):
         print('Error in detection.')
+        sys.exit(0)
+
+    board = Board(detected)
+    print(board.get_max())
+    
