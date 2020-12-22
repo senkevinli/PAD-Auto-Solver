@@ -146,4 +146,14 @@ def test_erase_all_1():
     ret = b.calc_combos()
 
     assert ret == 3
-    assert getattr(b, 'board') == outp
+
+def test_erase_all_2():
+    """ Basic check. """
+    data = parse_json_file('board9')
+    
+    inp = data.get('board_input')
+    outp = data.get('board_erase_all_output')
+    b = Board(deepcopy(inp))
+    ret = b.calc_combos()
+
+    assert ret == 1

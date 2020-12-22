@@ -5,6 +5,7 @@
 
 from .pad_types import Orbs, Directions
 from typing import List, Tuple
+from copy import deepcopy
 
 COMBO_LIMIT = 3
 class Board:
@@ -95,7 +96,7 @@ class Board:
             
 
         def go_down(coord, color):
-            """ Helper method for going left. """
+            """ Helper method for going down. """
             x, y = coord
             changed = 0
 
@@ -119,7 +120,6 @@ class Board:
             
             return changed
         sum = go_right(coord, color) + go_down(coord, color)
-        print(self.a)
         return sum
                         
 
@@ -127,13 +127,55 @@ class Board:
         """
             Calculates the number of combos currently present on the board.
         """
+        # Save current state because erase orbs will mutate the board.
+        saved = deepcopy(self.board)
+
+        def cleared_to_none():
+            for y, orb_row in enumerate(self.board):
+                for x, orb in enumerate(orb_row):
+                    if (orb == Orbs.CLEARED):
+                        self.board[y][x] = None
+
         combos = 0
         for y, orb_row in enumerate(self.board):
             for x, orb in enumerate(orb_row):
-                if (orb != Orbs.CLEARED):
-                    combos = combos + 1 if self._erase_orbs((x, y), orb) > 0 else combos
+                if (orb != None):
+                    if self._erase_orbs((x, y), orb) > 0:
+                        combos = combos + 1
+                        cleared_to_none()
         
+        self.board = saved
         return combos
+    
+    def move_orb(self, src: Tuple[int, int], dir: Directions) -> bool:
+        """
+            Moves orb according to direction. Returns false if unable to.
+        """
+        x, y = src
+        if x < 0 or y < 0 or x >= self.cols or y >= self.rows:
+            return False
+
+        x2 = x + dir.value[0]
+        y2 = y + dir.value[1]
+
+        if x2 < 0 or y2 < 0 or x2 >= self.cols or y2 >= self.rows:
+            return False
+        
+        # Swap orbs.
+        self.board[y][x], self.board[y2][x2] = self.board[y2][x2], self.board[y][x]
+        return True
+    
+    def get_board(self):
+        """
+            Returns the board for hashing.
+        """
+        return self.board
+
+    def max_combos(self):
+        """
+            Returns the maxmium # of combos.
+        """
+        return self.max
 
     def __str__(self):
         """
@@ -147,3 +189,6 @@ class Board:
                 string += '{:<15}'.format(orb)
             string += '\n'
         return string
+
+    def __lt__(self, other):
+        return self.max_combos < other.max_combos

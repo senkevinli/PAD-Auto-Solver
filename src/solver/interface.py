@@ -136,7 +136,7 @@ class Interface:
         if x < 0 or x >= self.board_cols or y < 0 or y >= self.board_rows:
             return None
         
-        if len(path) <= 1:
+        if len(path) < 1:
             return None
 
         path_coord = []
