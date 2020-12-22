@@ -34,7 +34,9 @@ def test_erase_1():
     output_1 = data.get('board_erase_output')
 
     b = Board(input_1)
-    b._erase_orbs((1, 0), Orbs.BLUE, (0, 0))
+    ret = b._erase_orbs((1, 0), Orbs.BLUE)
+
+    assert ret == 11
     assert getattr(b, 'board') == output_1
 
 def test_erase_2():
@@ -45,9 +47,9 @@ def test_erase_2():
     output_1 = deepcopy(input_1)
 
     b = Board(input_1)
-    b._erase_orbs((0, 3), Orbs.LIGHT, (0, 0))
+    ret = b._erase_orbs((0, 3), Orbs.LIGHT)
 
-    # Should still be the same.
+    assert ret == 0
     assert getattr(b, 'board') == output_1
 
 def test_erase_3():
@@ -58,8 +60,8 @@ def test_erase_3():
     output_2 = data.get('board_erase_output')
 
     b = Board(input_2)
-    b._erase_orbs((0, 0), Orbs.LIGHT, (0,0))
-
+    ret = b._erase_orbs((0, 0), Orbs.LIGHT)
+    assert ret == 29
     # Everything should be erased except for last orb.
     assert getattr(b, 'board') == output_2
 
@@ -70,7 +72,78 @@ def test_erase_4():
     input_3 = data.get('board_input')
     output_3 = data.get('board_erase_output')
     b = Board(deepcopy(input_3))
-    b._erase_orbs((0, 3), Orbs.LIGHT, (0, 0))
-
-    # Everything should be erased except for last orb.
+    ret = b._erase_orbs((0, 3), Orbs.LIGHT)
+    assert ret == 11
     assert getattr(b, 'board') == output_3
+
+def test_erase_5():
+    """ L Formation."""
+    data = parse_json_file('board4')
+    
+    input_4 = data.get('board_input')
+    output_4 = data.get('board_erase_output')
+    b = Board(deepcopy(input_4))
+    ret = b._erase_orbs((1, 0), Orbs.BLUE)
+
+    assert ret == 7
+    assert getattr(b, 'board') == output_4
+
+def test_erase_6():
+    """ Square Formation."""
+    data = parse_json_file('board5')
+    
+    input_5 = data.get('board_input')
+    output_5 = data.get('board_erase_output')
+    b = Board(deepcopy(input_5))
+    ret = b._erase_orbs((1, 0), Orbs.BLUE)
+
+    assert ret == 0
+    assert getattr(b, 'board') == output_5
+
+def test_erase_7():
+    """ Offset T Formation."""
+    data = parse_json_file('board6')
+    
+    input_6 = data.get('board_input')
+    output_6 = data.get('board_erase_output')
+    b = Board(deepcopy(input_6))
+    ret = b._erase_orbs((1, 0), Orbs.BLUE)
+
+    assert ret == 5
+    assert getattr(b, 'board') == output_6
+
+def test_erase_8():
+    """ Zigzag Formation."""
+    data = parse_json_file('board7')
+    
+    input_7 = data.get('board_input')
+    output_7 = data.get('board_erase_output')
+    b = Board(deepcopy(input_7))
+    ret = b._erase_orbs((0, 0), Orbs.LIGHT)
+
+    assert ret == 13
+    assert getattr(b, 'board') == output_7
+
+def test_erase_8():
+    """ Uneven Square Formation."""
+    data = parse_json_file('board8')
+    
+    input_8 = data.get('board_input')
+    output_8 = data.get('board_erase_output')
+    b = Board(deepcopy(input_8))
+    ret = b._erase_orbs((0, 0), Orbs.LIGHT)
+
+    assert ret == 7
+    assert getattr(b, 'board') == output_8
+
+def test_erase_all_1():
+    """ Uneven Square Formation."""
+    data = parse_json_file('board3')
+    
+    inp = data.get('board_input')
+    outp = data.get('board_erase_all_output')
+    b = Board(deepcopy(inp))
+    ret = b.calc_combos()
+
+    assert ret == 3
+    assert getattr(b, 'board') == outp

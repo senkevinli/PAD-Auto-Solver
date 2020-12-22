@@ -12,5 +12,12 @@
         [ "DARK", "DARK", "DARK", "DARK", "DARK", "DARK" ],
         [ "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED" ],
         [ "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED", "BLUE"]
+    ],
+    "board_erase_all_output": [
+        [ "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED" ],
+        [ "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED" ],
+        [ "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED" ],
+        [ "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED" ],
+        [ "CLEARED", "CLEARED", "CLEARED", "CLEARED", "CLEARED", "BLUE"]
     ]
 }

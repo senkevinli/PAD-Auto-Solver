@@ -54,51 +54,96 @@ class Board:
     def _erase_orbs(
         self,
         coord: Tuple[int, int],
-        color: Orbs,
-        chain: Tuple[int, int]
-    ) -> Tuple[int, int]:
+        color: Orbs
+    ) -> int:
         """
             Modifies board so that the combo starting at location
-            specified by `start` is erased/set to `None`. 
+            specified by `start` is erased/set to `None`.
+
+            TODO: Make more efficient, currently doing a lot of unnecessary recomputations.
+            Also add in functionality for Ls and Crosses.
             
             NOTE:
             Assumes starting location is at the top left of the combo chain. Won't
             behave correctly otherwise.
         """
-        x, y = coord
-        
-        # Return silently if out of bounds.
-        if x >= self.cols or x < 0 or y >= self.rows or y < 0:
-            return chain
+        self.a = 0
 
-        if self.board[y][x] != Orbs.CLEARED and self.board[y][x] != color:
-            return chain
+        def go_right(coord, color):
+            """ Helper method for going right. """
+            x, y = coord
+            changed = 0
 
-        self.board[y][x] = Orbs.CLEARED
+            right_b = x
+            while right_b < self.cols:
+                if self.board[y][right_b] != color and self.board[y][right_b] != Orbs.CLEARED:
+                    break
+                right_b += 1
 
-        right, _ = self._erase_orbs((x + 1, y), color, (chain[0] + 1, 0))
-        _, down = self._erase_orbs((x, y + 1), color, (0, chain[1] + 1))
+            clearable = (right_b - x) >= COMBO_LIMIT
+            for i in range(x, right_b):
+                self.a += 1
+                if clearable:
+                    if self.board[y][i] != Orbs.CLEARED:
+                        changed += 1
+                    self.board[y][i] = Orbs.CLEARED
+                elif i == x and self.board[y][i] != Orbs.CLEARED:
+                    return changed
+                if i != x:
+                    changed += go_down((i,y), color)
+            return changed
+            
 
-        if right < COMBO_LIMIT and down < COMBO_LIMIT:
-            self.board[y][x] = color
-            return chain
+        def go_down(coord, color):
+            """ Helper method for going left. """
+            x, y = coord
+            changed = 0
 
-        return (right, down)
+            down_b = y
+            while down_b < self.rows:
+                self.a += 1
+                if self.board[down_b][x] != color and self.board[down_b][x] != Orbs.CLEARED:
+                    break
+                down_b += 1
+
+            clearable = (down_b - y) >= COMBO_LIMIT
+            for i in range(y, down_b):
+                if clearable:
+                    if self.board[i][x] != Orbs.CLEARED:
+                        changed += 1
+                    self.board[i][x] = Orbs.CLEARED
+                elif i == y and self.board[i][x] != Orbs.CLEARED:
+                    return changed
+                if i != y:
+                    changed += go_right((x, i), color)
+            
+            return changed
+        sum = go_right(coord, color) + go_down(coord, color)
+        print(self.a)
+        return sum
                         
 
-    def _calc_combos(self) -> int:
+    def calc_combos(self) -> int:
         """
             Calculates the number of combos currently present on the board.
         """
-        pass
-    def __str__(self):
+        combos = 0
+        for y, orb_row in enumerate(self.board):
+            for x, orb in enumerate(orb_row):
+                if (orb != Orbs.CLEARED):
+                    combos = combos + 1 if self._erase_orbs((x, y), orb) > 0 else combos
         
+        return combos
+
+    def __str__(self):
+        """
+            String representation used for debugging.
+        """
         string = ''
         for orb_rows in self.board:
             for orb in orb_rows:
                 if orb is None:
-                    string += 'empty '
-                else:
-                    string += f'{orb.name} '
+                    orb = 'EMPTY'
+                string += '{:<15}'.format(orb)
             string += '\n'
         return string
