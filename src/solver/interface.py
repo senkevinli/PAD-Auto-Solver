@@ -48,7 +48,6 @@ class Interface:
         self.right = None
         self.left = None
         self.bottom = None
-        logging.info('yo')
 
 
     def setup_device(self) -> bool:

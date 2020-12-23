@@ -3,3 +3,6 @@ uiautomator
 opencv-python
 numpy
 Pillow
+pyfiglet
+click
+PyInquirer

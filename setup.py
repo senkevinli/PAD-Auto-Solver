@@ -13,6 +13,7 @@ setup(
     author='Kevin Li',
     description='Command Line Interface tool for solving Puzzles and Dragons',
     packages=find_packages(),
+    include_package_data = True,
     install_requires=_get_reqs(),
     entry_points='''
         [console_scripts]

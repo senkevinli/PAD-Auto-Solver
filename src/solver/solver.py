@@ -21,7 +21,7 @@ def solve(raw_orbs, max_path):
                 max = cur_max
                 path = cur_path
                 start = (x, y)
-    print(f'CURRENT MAX IS : {max}')
+    # print(f'CURRENT MAX IS : {max}')
     return path, start
             
 def _solve_from(start, max_path, b):
@@ -81,7 +81,7 @@ def _solve_from(start, max_path, b):
             changed_dir_list.append(direction)
 
             if combos == 6:
-                print('HIT')
+                # print('HIT')
                 return combos, changed_dir_list
 
             new_state = [dup, changed_dir_list, next_loc]
@@ -100,8 +100,8 @@ def _solve_from(start, max_path, b):
                 h = heapq.nsmallest(10, h)
 
     
-    print(len(h) == 0)
-    print(cur_combos >= max_combos)
-    print(f'FINAL: {cur_combos}')
+    # print(len(h) == 0)
+    # print(cur_combos >= max_combos)
+    # print(f'FINAL: {cur_combos}')
 
     return cur_combos, max_combos_dir
