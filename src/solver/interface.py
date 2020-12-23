@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import re
+import logging
+
 from PIL import Image
 from os import path, remove
 from ppadb.client import Client
@@ -46,6 +48,7 @@ class Interface:
         self.right = None
         self.left = None
         self.bottom = None
+        logging.info('yo')
 
 
     def setup_device(self) -> bool:
