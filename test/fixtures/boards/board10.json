@@ -1,0 +1,16 @@
+{
+    "board_input": [
+        [ "HEART", "HEART", "GREEN", "BLUE", "HEART", "BLUE" ],
+        [ "GREEN", "LIGHT", "RED", "LIGHT", "HEART", "LIGHT" ],
+        [ "GREEN", "LIGHT", "GREEN", "LIGHT", "HEART", "LIGHT" ],
+        [ "GREEN", "RED", "HEART", "HEART", "LIGHT", "GREEN" ],
+        [ "GREEN", "HEART", "HEART", "BLUE", "GREEN", "GREEN"]
+    ],
+    "board_erase_output": [
+        [ "CLEARED", "HEART", "GREEN", "BLUE", "CLEARED", "BLUE" ],
+        [ "CLEARED", "LIGHT", "RED", "LIGHT", "CLEARED", "LIGHT" ],
+        [ "CLEARED", "LIGHT", "GREEN", "LIGHT", "CLEARED", "LIGHT" ],
+        [ "CLEARED", "RED", "HEART", "HEART", "LIGHT", "GREEN" ],
+        [ "CLEARED", "CLEARED", "CLEARED", "BLUE", "GREEN", "GREEN"]
+    ]
+}

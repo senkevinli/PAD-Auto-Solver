@@ -18,10 +18,15 @@ class Board:
         # Get the orbs frequency.        
         counts = {}
 
+        # Make a copy for immutability
+        copied = []
 
         for orb_row in orbs:
+            copied_row = []
             for orb in orb_row:
                 counts.update({orb: counts.get(orb, 0) + 1})
+                copied_row.append(orb)
+            copied.append(copied_row)
 
         # Constructive algorithm to calculate the max number of combos. Only
         # works for 6x5.
@@ -46,7 +51,7 @@ class Board:
             counts_copy = pruned
 
         # Set private variables.
-        self.board = orbs
+        self.board = copied
         self.rows = len(orbs)
         self.cols = len(orbs[0])
         self.counts = counts
@@ -143,6 +148,20 @@ class Board:
                     if self._erase_orbs((x, y), orb) > 0:
                         combos = combos + 1
                         cleared_to_none()
+
+        if combos == 0:
+            return 0
+
+        for y, orb_row in enumerate(self.board):
+            for x, orb in enumerate(orb_row):
+                if orb != None:
+                    i = y + 1
+                    while i < len(self.board) and self.board[i][x] == None:
+                        i += 1
+                    self.board[y][x] = None
+                    self.board[i - 1][x] = orb
+
+        combos += self.calc_combos()        
         
         self.board = saved
         return combos

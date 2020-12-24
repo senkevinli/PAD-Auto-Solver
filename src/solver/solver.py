@@ -2,14 +2,19 @@
 
 """ Class for simulating/easing board computations """
 import heapq
+import logging
 
 from .pad_types import Orbs, Directions
 from copy import deepcopy
 from .board import Board
 from typing import List, Tuple
 
+
 def solve(raw_orbs, max_path):
     b = Board(raw_orbs)
+
+    logging.debug('Try to solve:')
+    logging.debug(b)
 
     max = 0
     path = None
@@ -22,11 +27,14 @@ def solve(raw_orbs, max_path):
                 max = cur_max
                 path = cur_path
                 start = (x, y)
-    # print(f'CURRENT MAX IS : {max}')
+    
+    logging.debug(f'Optimal combos is : {max}')
+    logging.debug('Path is:')
+    logging.debug(path)
     return path, start
             
 def _solve_from(start, max_path, b, visited):
-
+    visited = set()
     max_combos = b.max_combos()
     h = []
 
@@ -62,9 +70,11 @@ def _solve_from(start, max_path, b, visited):
             continue
 
         for direction in Directions:
+
             if len(dir_list) > 0 and direction == dir_list[-1]:
                 continue
-            dup = Board(deepcopy(board.get_board()))
+
+            dup = Board(board.get_board())
             valid = dup.move_orb(start, direction)
             if not valid:
                 continue
@@ -90,7 +100,7 @@ def _solve_from(start, max_path, b, visited):
             cur_combos = max(combos, cur_combos)
             if cur_combos == combos:
                 max_combos_dir = changed_dir_list
-            
+
             if len(h) > 10:
                 h = heapq.nsmallest(10, h)
 

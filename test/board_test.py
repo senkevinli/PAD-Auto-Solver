@@ -157,3 +157,14 @@ def test_erase_all_2():
     ret = b.calc_combos()
 
     assert ret == 1
+
+def test_cascade_1():
+    """ Simple cascade. """
+    data = parse_json_file('board10')
+    
+    inp = data.get('board_input')
+    outp = data.get('board_erase_all_output')
+    b = Board(deepcopy(inp))
+    ret = b.calc_combos()
+
+    assert ret == 3
