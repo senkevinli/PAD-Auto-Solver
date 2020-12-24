@@ -68,6 +68,8 @@ class SolveState:
             Hash function will be use the board.
         """
         return hash(self.board)
+    def __eq__(self, other):
+        return True
 
     def __lt__(self, other):
         """ 
@@ -131,6 +133,10 @@ def _solve_from(
     heapq.heappush(h, initial)
     visited = set()
     visited.add(initial)
+
+    if initial in visited:
+        print('???')
+
     cur_combos = initial.combos
 
     opt_sol = None
@@ -144,7 +150,7 @@ def _solve_from(
 
         # If the popped state has the greatest amount of combos
         # so far.
-        if combos > cur_combos:
+        if combos >= cur_combos:
             cur_combos = combos
             opt_sol = state
 
@@ -153,12 +159,16 @@ def _solve_from(
             continue
 
         for direction in Directions:
+
+            if len(dir_list) > 0 and direction == dir_list[-1]:
+                continue
             next_state = SolveState(
                 state.board,
                 state.dir_list,
                 state.start,
                 state.current
             )
+
             
             valid = next_state.move_current(direction)
 

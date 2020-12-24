@@ -200,4 +200,4 @@ class Board:
             Hashing function based on the current board state.
         """
         converted = tuple(tuple(row) for row in self.board)
-        return hash(converted)
+        return hash(self.board.__str__())
