@@ -192,3 +192,10 @@ class Board:
 
     def __lt__(self, other):
         return self.max_combos < other.max_combos
+    
+    def __hash__(self):
+        """
+            Hashing function based on the current board state.
+        """
+        converted = tuple(tuple(row) for row in self.board)
+        return hash(self.board.__str__())

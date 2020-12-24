@@ -103,13 +103,13 @@ def main(rows, cols, speed, verbose):
                 continue
 
             sp.write('> finished detection.')
-            
-            # Time the execution.
+
             begin = datetime.now()
-            path, start = solve(detected, 75)
+            path, start = solve(detected, 50)
             end = datetime.now()
-            diff = end - begin
-            sp.write(f'> path found in {diff.total_seconds()} seconds!')
+
+            delta = end - begin
+            sp.write(f'> path found in {delta.total_seconds()} seconds!')
             interface.input_swipes(path, start)
             sp.ok()
         answer = prompt(_gen_confirm('Proceed with solving?'))

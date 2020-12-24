@@ -14,6 +14,7 @@ def solve(raw_orbs, max_path):
     max = 0
     path = None
     start = None
+<<<<<<< HEAD
     for y, orb_row in enumerate(raw_orbs):
         for x, orb in enumerate(orb_row):
             cur_max, cur_path = _solve_from((x, y), max_path, b)
@@ -50,6 +51,44 @@ def _solve_from(start, max_path, b):
     # BFS search.
     while len(h) > 0 and cur_combos < max_combos:
 
+=======
+    visited = set()
+    for y, orb_row in enumerate(raw_orbs):
+        for x, orb in enumerate(orb_row):
+            cur_max, cur_path = _solve_from((x, y), max_path, b, visited)
+            if cur_max > max:
+                max = cur_max
+                path = cur_path
+                start = (x, y)
+    # print(f'CURRENT MAX IS : {max}')
+    return path, start
+            
+def _solve_from(start, max_path, b, visited):
+
+    max_combos = b.max_combos()
+    h = []
+
+    # First element is the board, second is the list of directions
+    # third is the starting point for the orb.
+    # Use negative priority.
+
+    initial_state = [b, [], start]
+    initial_combos = b.calc_combos()
+    heapq.heappush(
+        h,
+        (initial_combos, id(initial_state), initial_state)
+    )
+
+    visited.add(b.__str__())
+
+    cur_combos = initial_combos
+
+    max_combos_dir = []
+
+    # BFS search.
+    while len(h) > 0 and cur_combos < max_combos:
+
+>>>>>>> debugging
         combos, _, (board, dir_list, start) = heapq.heappop(h)
         
         combos = abs(combos)
@@ -62,6 +101,11 @@ def _solve_from(start, max_path, b):
             continue
 
         for direction in Directions:
+<<<<<<< HEAD
+=======
+            if len(dir_list) > 0 and direction == dir_list[-1]:
+                continue
+>>>>>>> debugging
             dup = Board(deepcopy(board.get_board()))
             valid = dup.move_orb(start, direction)
             if not valid:
@@ -96,5 +140,9 @@ def _solve_from(start, max_path, b):
     # print(len(h) == 0)
     # print(cur_combos >= max_combos)
     # print(f'FINAL: {cur_combos}')
+<<<<<<< HEAD
+=======
+    logging.debug(f'Final for this iteration is: {cur_combos}')
+>>>>>>> debugging
 
     return cur_combos, max_combos_dir
