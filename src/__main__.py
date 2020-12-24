@@ -47,27 +47,31 @@ def _handle_error():
     if not answer.get('confirmation'):
         sys.exit(0)
 
-@click.command()
-@click.option('--rows', default=BOARD_ROWS, help='Number of rows.')
-@click.option('--cols', default=BOARD_COLS, help='Number of rows. ')
-@click.option('--speed', default=SPEED, help='Time(ms) for orb swipe.')
-@click.option('-v', '--verbose', default=False, help='Verbose output for debugging.')
-def main(rows, cols, speed, verbose):
-    """ Main loop for evaluating. """
+def _verbose(rows, cols, speed):
+    """ For verbose output. No spinners. """
+    interface = Interface(rows, cols, WIDTH_RATIO, HEIGHT_RATIO, speed)
 
-    # Configure logger.
-    log_level = logging.INFO if not verbose else logging.DEBUG
-    # Configure logger.
-    # logging.basicConfig(
-    #     stream=sys.stdout,
-    #     level=log_level,
-    #     format='%(message)s'
-    # )
-    # For prompting.
+    if (not interface.setup_device()):
+        print('Error in setting up device. Please check if device is attached.')
+        sys.exit(0)
+    print('> device setup.')
 
-    print_figlet('Puzzles and Dragons Solver', font='slant', colors='CYAN')
+    raw_orbs = interface.board_screencap()
 
-    # Configure device.
+    print('> screenshot taken.')
+    detected = detect(raw_orbs)
+
+    if (detected is None):
+        print('Error in detection.')
+        sys.exit(0)
+    print('> detection complete')
+
+    path, start = solve(detected, 50)
+    print('solved.')
+    interface.input_swipes(path, start)
+
+def _non_verbose(rows, cols, speed):
+    """ For non-verbose output. With spinners. """
     interface = None
     while True:
         with yaspin(text='Setting up device', color='cyan') as sp:
@@ -110,36 +114,31 @@ def main(rows, cols, speed, verbose):
         if not answer.get('confirmation'):
             sys.exit(0)
 
+@click.command()
+@click.option('--rows', default=BOARD_ROWS, help='Number of rows.')
+@click.option('--cols', default=BOARD_COLS, help='Number of rows. ')
+@click.option('--speed', default=SPEED, help='Time(ms) for orb swipe.')
+@click.option('-v', '--verbose', default=False, help='Verbose output for debugging.')
+def main(rows, cols, speed, verbose):
+    """ Main loop for evaluating. """
+    print_figlet('Puzzles and Dragons Solver', font='slant', colors='CYAN')
+    
+    # Prevent PIL pollution.
+    pil_logger = logging.getLogger('PIL')
+    pil_logger.setLevel(logging.INFO)
+
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.CRITICAL if not verbose else logging.DEBUG,
+        format='%(message)s'
+    )
+
+    if not verbose:
+        _non_verbose(rows, cols, speed)
+    else:
+        _verbose(rows, cols, speed)
+
 
 
 if __name__ == '__main__':
     main()
-    # # Configure logger.
-    # logging.basicConfig(
-    #     stream=sys.stdout,
-    #     level=logging.CRITICAL,
-    #     format='%(message)s'
-    # )
-
-    # logging.info('hia')
-    
-    # f = Figlet(font='slant')
-    # print(f.renderText('Puzzles and Dragons Solver'))
-    # interface = Interface(BOARD_ROWS, BOARD_COLS, WIDTH_RATIO, HEIGHT_RATIO, 30)
-
-    # logging.debug('hi')
-    # # if (not interface.setup_device()):
-    # #     print('Error in setting up device. Please check if device is attached.')
-    # #     sys.exit(0)
-
-    # # raw_orbs = interface.board_screencap()
-    # # detected = detect(raw_orbs)
-
-    # # if (detected is None):
-    # #     print('Error in detection.')
-    # #     sys.exit(0)
-
-    # # path, start = solve(detected, 50)
-    # # print('solved.')
-    # # print(path, start)
-    # # errored = interface.input_swipes(path, start)

@@ -126,6 +126,7 @@ class Board:
     def calc_combos(self) -> int:
         """
             Calculates the number of combos currently present on the board.
+            Board state will not change.
         """
         # Save current state because erase orbs will mutate the board.
         saved = deepcopy(self.board)
@@ -147,27 +148,28 @@ class Board:
         self.board = saved
         return combos
     
-    def move_orb(self, src: Tuple[int, int], dir: Directions) -> bool:
+    def move_orb(self, src: Tuple[int, int], dir: Directions) -> Tuple[int, int]:
         """
             Moves orb according to direction. Returns false if unable to.
+            Orb is moved in place.
         """
         x, y = src
         if x < 0 or y < 0 or x >= self.cols or y >= self.rows:
-            return False
+            return None
 
         x2 = x + dir.value[0]
         y2 = y + dir.value[1]
 
         if x2 < 0 or y2 < 0 or x2 >= self.cols or y2 >= self.rows:
-            return False
+            return None
         
         # Swap orbs.
         self.board[y][x], self.board[y2][x2] = self.board[y2][x2], self.board[y][x]
-        return True
+        return (x2, y2)
     
     def get_board(self):
         """
-            Returns the board for hashing.
+            Returns the current board state.
         """
         return self.board
 
@@ -192,3 +194,10 @@ class Board:
 
     def __lt__(self, other):
         return self.max_combos < other.max_combos
+    
+    def __hash__(self):
+        """
+            Hashing function based on the current board state.
+        """
+        converted = tuple(tuple(row) for row in self.board)
+        return hash(converted)
