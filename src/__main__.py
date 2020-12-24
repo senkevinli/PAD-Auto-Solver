@@ -102,15 +102,9 @@ def main(rows, cols, speed, verbose):
                 continue
 
             sp.write('> finished detection.')
-            path, start = solve(detected, 50)
+            path, start = solve(detected, 75)
             sp.write('> path found.')
-            swipes = interface.input_swipes(path, start)
-
-            if swipes is None:
-                sp.fail('Error in inputting swipes.')
-                _handle_error()
-                continue
-
+            interface.input_swipes(path, start)
             sp.ok()
         answer = prompt(_gen_confirm('Proceed with solving?'))
         if not answer.get('confirmation'):

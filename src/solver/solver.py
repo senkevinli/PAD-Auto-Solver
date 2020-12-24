@@ -73,16 +73,9 @@ def _solve_from(start, max_path, b):
 
             next_combos = dup.calc_combos()
 
-            if combos > next_combos:
-                continue
-
             combos = next_combos
             changed_dir_list = deepcopy(dir_list)
             changed_dir_list.append(direction)
-
-            if combos == 6:
-                # print('HIT')
-                return combos, changed_dir_list
 
             new_state = [dup, changed_dir_list, next_loc]
             heapq.heappush(

@@ -189,8 +189,18 @@ class Interface:
             Captures the screen and returns an array
             of Pillow Images that contain the orbs.
         """
-        self.device.screenshot(LOCATION)
-        with Image.open(LOCATION) as im:
+
+        # Try 3 times. If errored, then quit.
+        filename = None
+        for i in range(3):
+            filename = self.device.screenshot(LOCATION)
+            if filename is not None:
+                break
+        
+        if filename is None:
+            return None
+
+        with Image.open(filename) as im:
             raw_orbs = []
 
             # Get the specific orb images.
