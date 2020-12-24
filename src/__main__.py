@@ -3,7 +3,8 @@
 import logging
 import sys
 import click
-import time
+
+from datetime import datetime
 from pyfiglet import print_figlet
 from yaspin import yaspin
 from PyInquirer import prompt
@@ -102,8 +103,13 @@ def main(rows, cols, speed, verbose):
                 continue
 
             sp.write('> finished detection.')
+            
+            # Time the execution.
+            begin = datetime.now()
             path, start = solve(detected, 75)
-            sp.write('> path found.')
+            end = datetime.now()
+            diff = end - begin
+            sp.write(f'> path found in {diff.total_seconds()} seconds!')
             interface.input_swipes(path, start)
             sp.ok()
         answer = prompt(_gen_confirm('Proceed with solving?'))
