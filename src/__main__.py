@@ -3,7 +3,8 @@
 import logging
 import sys
 import click
-import time
+
+from datetime import datetime
 from pyfiglet import print_figlet
 from yaspin import yaspin
 from PyInquirer import prompt
@@ -106,8 +107,13 @@ def _non_verbose(rows, cols, speed):
                 continue
 
             sp.write('> finished detection.')
-            path, start = solve(detected, 75)
-            sp.write('> path found.')
+
+            begin = datetime.now()
+            path, start = solve(detected, 50)
+            end = datetime.now()
+
+            delta = end - begin
+            sp.write(f'> path found in {delta.total_seconds()} seconds!')
             interface.input_swipes(path, start)
             sp.ok()
         answer = prompt(_gen_confirm('Proceed with solving?'))
