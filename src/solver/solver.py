@@ -80,12 +80,17 @@ def _solve_from(start, max_path, b, visited):
                     continue
                 elif direction == Directions.RIGHT and last_move == Directions.LEFT:
                     continue
+            x, y = start
+            next_loc = (x + direction.value[0], y + direction.value[1])
+
+            if next_loc[0] < 0 or next_loc[0] >= 6 or next_loc[1] < 0 or next_loc[1] >= 5:
+                continue
             dup = Board(board.get_board())
             valid = dup.move_orb(start, direction)
             if not valid:
                 continue
-            if dup.__str__() in visited:
-                continue
+            # if dup.__str__() in visited:
+            #     continue
             x, y = start
             next_loc = (x + direction.value[0], y + direction.value[1])
 
@@ -101,7 +106,7 @@ def _solve_from(start, max_path, b, visited):
                 (-combos, id(new_state), new_state)
             )
 
-            visited.add(dup.__str__())
+            # visited.add(dup.__str__())
             
             cur_combos = max(combos, cur_combos)
             if cur_combos == combos:

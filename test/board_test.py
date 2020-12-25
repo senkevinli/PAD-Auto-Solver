@@ -33,26 +33,13 @@ def test_erase_1():
     input_1 = data.get('board_input')
     output_1 = data.get('board_erase_output')
 
-    b = Board(input_1)
-    ret = b._erase_orbs((1, 0), Orbs.BLUE)
 
-    assert ret == 11
-    assert getattr(b, 'board') == output_1
+    b = Board(input_1)
+    ret = b.calc_combos()
+    assert ret == 1
+    #assert getattr(b, 'board') == output_1
 
 def test_erase_2():
-    """ Check if it doesn't erase unnecessary orbs. """
-    data = parse_json_file('board1')
-    
-    input_1 = data.get('board_input')
-    output_1 = deepcopy(input_1)
-
-    b = Board(input_1)
-    ret = b._erase_orbs((0, 3), Orbs.LIGHT)
-
-    assert ret == 0
-    assert getattr(b, 'board') == output_1
-
-def test_erase_3():
     """ Check if it erases all orbs except 1."""
     data = parse_json_file('board2')
     
@@ -60,21 +47,19 @@ def test_erase_3():
     output_2 = data.get('board_erase_output')
 
     b = Board(input_2)
-    ret = b._erase_orbs((0, 0), Orbs.LIGHT)
-    assert ret == 29
-    # Everything should be erased except for last orb.
-    assert getattr(b, 'board') == output_2
+    ret = b.calc_combos()
+    
+    assert ret == 1
 
-def test_erase_4():
+def test_erase_3():
     """ Trying another pattern."""
     data = parse_json_file('board3')
     
     input_3 = data.get('board_input')
     output_3 = data.get('board_erase_output')
     b = Board(deepcopy(input_3))
-    ret = b._erase_orbs((0, 3), Orbs.LIGHT)
-    assert ret == 11
-    assert getattr(b, 'board') == output_3
+    ret = b.calc_combos()
+    print(ret)
 
 def test_erase_5():
     """ L Formation."""
@@ -168,3 +153,14 @@ def test_cascade_1():
     ret = b.calc_combos()
 
     assert ret == 3
+
+def test_cascade_2():
+    """ More complex cascade. """
+    data = parse_json_file('board11')
+    
+    inp = data.get('board_input')
+    outp = data.get('board_erase_all_output')
+    b = Board(deepcopy(inp))
+    ret = b.calc_combos()
+
+    assert ret == 5

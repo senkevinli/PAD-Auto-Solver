@@ -6,8 +6,17 @@
 from .pad_types import Orbs, Directions
 from typing import List, Tuple
 from copy import deepcopy
+from pprint import pprint
 
 COMBO_LIMIT = 3
+
+def in_bounds(
+    coord: Tuple[int, int],
+    rows: int,
+    cols: int
+) -> bool:
+    x, y = coord
+    return x >= 0 and x < cols and y >= 0 and y < rows
 class Board:
     def __init__(self, orbs: List[List[Orbs]]) -> None:
         """
@@ -25,7 +34,7 @@ class Board:
             copied_row = []
             for orb in orb_row:
                 counts.update({orb: counts.get(orb, 0) + 1})
-                copied_row.append(orb)
+                copied_row.append([orb, False])
             copied.append(copied_row)
 
         # Constructive algorithm to calculate the max number of combos. Only
@@ -124,9 +133,88 @@ class Board:
                     changed += go_right((x, i), color)
             
             return changed
-        sum = go_right(coord, color) + go_down(coord, color)
+        right = go_right(coord, color)
+        down = go_down(coord, color)
+        
+        print(right, down)
+        sum = right + down
+        if sum > 0:
+            print(coord)
+        # sum = go_right(coord, color) + go_down(coord, color)
         return sum
-                        
+
+    def _erase_orbs2(
+        self,
+        coord: Tuple[int, int],
+        color: Orbs,
+        clusters,
+        all_cleared
+    ) -> int:
+        """
+            Modifies board so that the combo starting at location
+            specified by `start` is erased/set to `None`.
+
+            TODO: Make more efficient, currently doing a lot of unnecessary recomputations.
+            Also add in functionality for Ls and Crosses.
+            
+            NOTE:
+            Assumes starting location is at the top left of the combo chain. Won't
+            behave correctly otherwise.
+        """
+        x, y = coord
+
+        changed = set()
+        # Check right first, only COMBO_LIMIT elements is enough.
+        if in_bounds((x + COMBO_LIMIT - 1, y), self.rows, self.cols):
+            same = [ self.board[y][i][0] == color for i in range(x, x + COMBO_LIMIT) ]
+            if all(same):
+                for i in range(x, x + COMBO_LIMIT):
+                    self.board[y][i][1] = True
+                    changed.add((i, y))
+
+        # Check down, only COMBO_LIMIT elements is enough.
+        if in_bounds((x, y + COMBO_LIMIT - 1), self.rows, self.cols):
+            same = [ self.board[i][x][0] == color for i in range(y, y + COMBO_LIMIT)]
+            if all(same):
+                for i in range(y, y + COMBO_LIMIT):
+                    self.board[i][x][1] = True
+                    changed.add((x, i))
+
+        # Were any changed?
+        if len(changed) > 0:
+            old_length = len(all_cleared.get(color))
+            all_cleared.get(color).update(changed)
+
+            if len(all_cleared.get(color)) > old_length:
+                # If so, we may need to add to clusters.
+                tgt_cluster = None        
+                cluster_list = clusters.get(color)
+                # Check if part of a cluster.
+                for direction in Directions:
+                    x2, y2 = tuple(
+                        map(lambda src, change: src + change, (x,y), direction.value)
+                    )
+                    # Part of a cluster if orb to the up, left, right, and down
+                    # is cleared and the same color.
+                    if in_bounds((x2, y2), self.rows, self.cols) and \
+                    self.board[y2][x2][1] == True and \
+                    (x2, y2) in all_cleared.get(color):
+                        for cluster in cluster_list:
+                            if (x2, y2) in cluster:
+                                # Coalesce clusters.
+                                if tgt_cluster is not None and tgt_cluster is not cluster:
+                                    tgt_cluster.update(cluster)
+                                    cluster_list.remove(cluster)
+                                else:
+                                    tgt_cluster = cluster
+                
+                if tgt_cluster is None:
+                    tgt_cluster = set()
+                    cluster_list.append(tgt_cluster)
+            
+                tgt_cluster.update(changed)
+
+        return len(changed)
 
     def calc_combos(self) -> int:
         """
@@ -134,6 +222,12 @@ class Board:
         """
         # Save current state because erase orbs will mutate the board.
         saved = deepcopy(self.board)
+
+        # Key = color, value = list of sets of coordinates.
+        clusters = { orb: [] for orb in Orbs if orb != Orbs.CLEARED}
+        
+        # For tracking the coordinates of everything has been cleared so far.
+        all_cleared = { orb: set() for orb in Orbs if orb != Orbs.CLEARED }
 
         def cleared_to_none():
             for y, orb_row in enumerate(self.board):
@@ -145,21 +239,23 @@ class Board:
         for y, orb_row in enumerate(self.board):
             for x, orb in enumerate(orb_row):
                 if (orb != None):
-                    if self._erase_orbs((x, y), orb) > 0:
-                        combos = combos + 1
-                        cleared_to_none()
+                    self._erase_orbs2((x, y), orb[0], clusters, all_cleared)
+        pprint(clusters)
+        return sum([len(values) for values in clusters.values()])
 
-        if combos == 0:
-            return 0
-
-        for y, orb_row in enumerate(self.board):
-            for x, orb in enumerate(orb_row):
-                if orb != None:
-                    i = y + 1
-                    while i < len(self.board) and self.board[i][x] == None:
-                        i += 1
-                    self.board[y][x] = None
-                    self.board[i - 1][x] = orb
+        # Simulate cascade.
+        for x in range(self.cols):
+            # `bound` is another pointer for this column.
+            bound = self.rows - 1
+            for y in range(self.rows - 1, -1, -1):
+                # Populate if not `None`. Skip the other nones for now.
+                if self.board[y][x] != None:
+                    self.board[bound][x] = self.board[y][x]
+                    bound -= 1
+            
+            # Fill the rest of the space with `None`
+            for y in range(bound, -1, -1):
+                self.board[y][x] = None
 
         combos += self.calc_combos()        
         
@@ -205,7 +301,7 @@ class Board:
             for orb in orb_rows:
                 if orb is None:
                     orb = 'EMPTY'
-                string += '{:<15}'.format(orb)
+                string += '{:<15}'.format(orb[0])
             string += '\n'
         return string
 
