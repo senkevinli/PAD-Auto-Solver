@@ -70,7 +70,16 @@ def _solve_from(start, max_path, b, visited):
             continue
 
         for direction in Directions:
-
+            if len(dir_list) > 0:
+                last_move = dir_list[-1]
+                if direction == Directions.DOWN and last_move == Directions.UP:
+                    continue
+                elif direction == Directions.UP and last_move == Directions.DOWN:
+                    continue
+                elif direction == Directions.LEFT and last_move == Directions.RIGHT:
+                    continue
+                elif direction == Directions.RIGHT and last_move == Directions.LEFT:
+                    continue
             dup = Board(board.get_board())
             valid = dup.move_orb(start, direction)
             if not valid:
