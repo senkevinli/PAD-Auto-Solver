@@ -109,7 +109,7 @@ def _non_verbose(rows, cols, speed):
             sp.write('> finished detection.')
 
             begin = datetime.now()
-            path, start = solve(detected, 75)
+            path, start = solve(detected, 25)
             end = datetime.now()
 
             delta = end - begin

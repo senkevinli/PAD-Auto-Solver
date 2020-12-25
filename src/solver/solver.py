@@ -71,9 +71,6 @@ def _solve_from(start, max_path, b, visited):
 
         for direction in Directions:
 
-            if len(dir_list) > 0 and direction == dir_list[-1]:
-                continue
-
             dup = Board(board.get_board())
             valid = dup.move_orb(start, direction)
             if not valid:
