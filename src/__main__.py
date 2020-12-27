@@ -23,13 +23,14 @@ except:
     from solver.board import Board
     from solver.solver import solve
 
+# Constants.
 BOARD_ROWS = 5
 BOARD_COLS = 6
 
-# Only 16:9 ratio supported.
 WIDTH_RATIO = 9
 HEIGHT_RATIO = 16
 
+MAX_PATH = 25
 SPEED = 30
 
 def _gen_confirm(msg: str) -> List[Dict]:
@@ -48,8 +49,8 @@ def _handle_error():
     if not answer.get('confirmation'):
         sys.exit(0)
 
-def _verbose(rows, cols, speed):
-    """ For verbose output. No spinners. """
+def _debug(rows, cols, speed, path):
+    """ For verbose output/debug. No spinners. """
     interface = Interface(rows, cols, WIDTH_RATIO, HEIGHT_RATIO, speed)
 
     if (not interface.setup_device()):
@@ -67,11 +68,11 @@ def _verbose(rows, cols, speed):
         sys.exit(0)
     print('> detection complete')
 
-    path, start, _ = solve(detected, 25)
+    path, start, _ = solve(detected, path)
     print('solved.')
     interface.input_swipes(path, start)
 
-def _non_verbose(rows, cols, speed):
+def _non_verbose(rows, cols, speed, path):
     """ For non-verbose output. With spinners. """
     interface = None
     while True:
@@ -109,7 +110,7 @@ def _non_verbose(rows, cols, speed):
             sp.write('> finished detection.')
 
             begin = datetime.now()
-            path, start, combos = solve(detected, 25)
+            path, start, combos = solve(detected, path)
             end = datetime.now()
 
             delta = end - begin
@@ -124,8 +125,9 @@ def _non_verbose(rows, cols, speed):
 @click.option('--rows', default=BOARD_ROWS, help='Number of rows.')
 @click.option('--cols', default=BOARD_COLS, help='Number of rows. ')
 @click.option('--speed', default=SPEED, help='Time(ms) for orb swipe.')
-@click.option('-v', '--verbose', default=False, help='Verbose output for debugging.')
-def main(rows, cols, speed, verbose):
+@click.option('-d', '--debug', default=False, help='Verbose output for debugging.')
+@click.option('-p', '--path', default=MAX_PATH, help='The maxmium length of the path.')
+def main(rows, cols, speed, debug, path):
     """ Main loop for evaluating. """
     print_figlet('Puzzles and Dragons Solver', font='slant', colors='CYAN')
     
@@ -135,14 +137,14 @@ def main(rows, cols, speed, verbose):
 
     logging.basicConfig(
         stream=sys.stdout,
-        level=logging.CRITICAL if not verbose else logging.DEBUG,
+        level=logging.CRITICAL if not debug else logging.DEBUG,
         format='%(message)s'
     )
 
-    if not verbose:
-        _non_verbose(rows, cols, speed)
+    if not debug:
+        _non_verbose(rows, cols, speed, path)
     else:
-        _verbose(rows, cols, speed)
+        _debug(rows, cols, speed, path)
 
 
 

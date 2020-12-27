@@ -3,7 +3,6 @@
 """ Class for simulating/easing board computations """
 import heapq
 import logging
-import concurrent.futures
 
 from .pad_types import Orbs, Directions
 from copy import deepcopy
@@ -39,8 +38,8 @@ class SolveState:
         return self.combos > other.combos
 
 def solve(
-        raw_orbs,
-        max_path
+        raw_orbs: List[List[Orbs]],
+        max_path: int
     ) -> Tuple[List[Directions], Tuple[int, int], int]:
     """
         Solves according to the `raw_orbs` list provided and the
@@ -56,10 +55,10 @@ def solve(
     max_combos = 0
     best = None
     start = (0, 0)
-    visited = set()
+
     for y, orb_row in enumerate(raw_orbs):
-        for x, orb in enumerate(orb_row):
-            ideal = _solve_from((x, y), max_path, b, visited)
+        for x, _ in enumerate(orb_row):
+            ideal = _solve_from((x, y), max_path, b)
             if ideal.combos > max_combos:
                 max_combos = ideal.combos
                 best = ideal
