@@ -243,12 +243,6 @@ class Board:
         """
         return self.board
 
-    def max_combos(self):
-        """
-            Returns the maxmium # of combos.
-        """
-        return self.max
-
     def __str__(self):
         """
             String representation used for debugging.
@@ -261,4 +255,3 @@ class Board:
                 string += '{:<15}'.format(orb[0])
             string += '\n'
         return string
-

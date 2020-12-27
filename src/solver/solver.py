@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Class for simulating/easing board computations """
+""" For the actual solving of the board. Prioritizes combos. """
 import heapq
 import logging
 
