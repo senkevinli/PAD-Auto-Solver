@@ -67,7 +67,7 @@ def _verbose(rows, cols, speed):
         sys.exit(0)
     print('> detection complete')
 
-    path, start = solve(detected, 25)
+    path, start, _ = solve(detected, 25)
     print('solved.')
     interface.input_swipes(path, start)
 
@@ -109,11 +109,11 @@ def _non_verbose(rows, cols, speed):
             sp.write('> finished detection.')
 
             begin = datetime.now()
-            path, start = solve(detected, 25)
+            path, start, combos = solve(detected, 25)
             end = datetime.now()
 
             delta = end - begin
-            sp.write(f'> path found in {delta.total_seconds()}!')
+            sp.write(f'> {combos} combo(s) path found in {delta.total_seconds()} seconds!')
             interface.input_swipes(path, start)
             sp.ok()
         answer = prompt(_gen_confirm('Proceed with solving?'))

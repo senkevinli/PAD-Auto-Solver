@@ -4,19 +4,11 @@
 
 
 from .pad_types import Orbs, Directions
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Set
 from copy import deepcopy
 from pprint import pprint
 
 COMBO_LIMIT = 3
-
-def in_bounds(
-    coord: Tuple[int, int],
-    rows: int,
-    cols: int
-) -> bool:
-    x, y = coord
-    return x >= 0 and x < cols and y >= 0 and y < rows
 class Board:
     def __init__(self, orbs: List[List[Orbs]]) -> None:
         """
@@ -33,16 +25,42 @@ class Board:
         for orb_row in orbs:
             copied_row = []
             for orb in orb_row:
-                counts.update({orb: counts.get(orb, 0) + 1})
-                copied_row.append([orb, False])
+                counts.update({orb[0]: counts.get(orb[0], 0) + 1})
+                copied_row.append([orb[0], False])
             copied.append(copied_row)
 
+        # Set private variables.
+        self.board = copied
+        self.rows = len(orbs)
+        self.cols = len(orbs[0])
+        self.counts = counts
+        self.max = max
+    
+    def sub_cluster(self, clusters: Dict[Orbs, List[Set[Tuple[int, int]]]]) -> None:
+        """
+            Subtracts cluster from the colors count. Cluster can be obtained
+            from `calc_combos`.
+        """
+        # Loop through colors and get the length.
+        for color in clusters.keys():
+            to_sub = 0
+
+            # Subtract from clusters.
+            for cluster in clusters.get(color):
+                to_sub += len(cluster)
+            self.counts.update({color: self.counts.get(color, 0) - to_sub})
+    
+    def get_potential(self) -> int:
+        """
+            Calculates the max number of combos possible from this board's
+            counts.
+        """
         # Constructive algorithm to calculate the max number of combos. Only
-        # works for 6x5.
+        # works for 6x5. There may be a better way to do this.
         # TODO: modify to account for 7x6 and 5x4 boards.
         max = 0
         exclude = None
-        counts_copy = counts.copy()
+        counts_copy = self.counts.copy()
         while True:
             pruned = {k: v for k, v in counts_copy.items() if v >= COMBO_LIMIT}
             key_list = list(pruned.keys())
@@ -58,97 +76,21 @@ class Board:
             pruned.update({exclude: pruned.get(exclude) - COMBO_LIMIT})
             max += 1
             counts_copy = pruned
+        return max
 
-        # Set private variables.
-        self.board = copied
-        self.rows = len(orbs)
-        self.cols = len(orbs[0])
-        self.counts = counts
-        self.max = max
+    def in_bounds(self, coord: Tuple[int, int]) -> bool:
+        """
+            Returns true if coordinate is within bounds of the board.
+        """
+        x, y = coord
+        return x >= 0 and x < self.cols and y >= 0 and y < self.rows
 
     def _erase_orbs(
         self,
         coord: Tuple[int, int],
-        color: Orbs
-    ) -> int:
-        """
-            Modifies board so that the combo starting at location
-            specified by `start` is erased/set to `None`.
-
-            TODO: Make more efficient, currently doing a lot of unnecessary recomputations.
-            Also add in functionality for Ls and Crosses.
-            
-            NOTE:
-            Assumes starting location is at the top left of the combo chain. Won't
-            behave correctly otherwise.
-        """
-        self.a = 0
-
-        def go_right(coord, color):
-            """ Helper method for going right. """
-            x, y = coord
-            changed = 0
-
-            right_b = x
-            while right_b < self.cols:
-                if self.board[y][right_b] != color and self.board[y][right_b] != Orbs.CLEARED:
-                    break
-                right_b += 1
-
-            clearable = (right_b - x) >= COMBO_LIMIT
-            for i in range(x, right_b):
-                self.a += 1
-                if clearable:
-                    if self.board[y][i] != Orbs.CLEARED:
-                        changed += 1
-                    self.board[y][i] = Orbs.CLEARED
-                elif i == x and self.board[y][i] != Orbs.CLEARED:
-                    return changed
-                if i != x:
-                    changed += go_down((i,y), color)
-            return changed
-            
-
-        def go_down(coord, color):
-            """ Helper method for going down. """
-            x, y = coord
-            changed = 0
-
-            down_b = y
-            while down_b < self.rows:
-                self.a += 1
-                if self.board[down_b][x] != color and self.board[down_b][x] != Orbs.CLEARED:
-                    break
-                down_b += 1
-
-            clearable = (down_b - y) >= COMBO_LIMIT
-            for i in range(y, down_b):
-                if clearable:
-                    if self.board[i][x] != Orbs.CLEARED:
-                        changed += 1
-                    self.board[i][x] = Orbs.CLEARED
-                elif i == y and self.board[i][x] != Orbs.CLEARED:
-                    return changed
-                if i != y:
-                    changed += go_right((x, i), color)
-            
-            return changed
-        right = go_right(coord, color)
-        down = go_down(coord, color)
-        
-        print(right, down)
-        sum = right + down
-        if sum > 0:
-            print(coord)
-        # sum = go_right(coord, color) + go_down(coord, color)
-        return sum
-
-    def _erase_orbs2(
-        self,
-        coord: Tuple[int, int],
         color: Orbs,
-        clusters,
-        all_cleared
+        clusters: Dict[Orbs, List[Set[Tuple[int, int]]]],
+        all_cleared: Dict[Orbs, Set[Tuple[int, int]]]
     ) -> int:
         """
             Modifies board so that the combo starting at location
@@ -165,7 +107,7 @@ class Board:
 
         changed = set()
         # Check right first, only COMBO_LIMIT elements is enough.
-        if in_bounds((x + COMBO_LIMIT - 1, y), self.rows, self.cols):
+        if self.in_bounds((x + COMBO_LIMIT - 1, y)):
             same = [ self.board[y][i][0] == color for i in range(x, x + COMBO_LIMIT) ]
             if all(same):
                 for i in range(x, x + COMBO_LIMIT):
@@ -173,7 +115,7 @@ class Board:
                     changed.add((i, y))
 
         # Check down, only COMBO_LIMIT elements is enough.
-        if in_bounds((x, y + COMBO_LIMIT - 1), self.rows, self.cols):
+        if self.in_bounds((x, y + COMBO_LIMIT - 1)):
             same = [ self.board[i][x][0] == color for i in range(y, y + COMBO_LIMIT)]
             if all(same):
                 for i in range(y, y + COMBO_LIMIT):
@@ -190,23 +132,26 @@ class Board:
                 tgt_cluster = None        
                 cluster_list = clusters.get(color)
                 # Check if part of a cluster.
-                for direction in Directions:
-                    x2, y2 = tuple(
-                        map(lambda src, change: src + change, (x,y), direction.value)
-                    )
-                    # Part of a cluster if orb to the up, left, right, and down
-                    # is cleared and the same color.
-                    if in_bounds((x2, y2), self.rows, self.cols) and \
-                    self.board[y2][x2][1] == True and \
-                    (x2, y2) in all_cleared.get(color):
-                        for cluster in cluster_list:
-                            if (x2, y2) in cluster:
-                                # Coalesce clusters.
-                                if tgt_cluster is not None and tgt_cluster is not cluster:
-                                    tgt_cluster.update(cluster)
-                                    cluster_list.remove(cluster)
-                                else:
-                                    tgt_cluster = cluster
+                for changes in changed:
+                    x, y = changes
+                    for direction in Directions:
+                        x2, y2 = tuple(
+                            map(lambda src, change: src + change, (x,y), direction.value)
+                        )
+                        # Part of a cluster if orb to the up, left, right, and down
+                        # is cleared and the same color.
+                        if self.in_bounds((x2, y2)) and \
+                        self.board[y2][x2][1] and \
+                        (x2, y2) in all_cleared.get(color):
+
+                            for cluster in cluster_list:
+                                if (x2, y2) in cluster:
+                                    # Coalesce clusters.
+                                    if tgt_cluster is not None and tgt_cluster is not cluster:
+                                        tgt_cluster.update(cluster)
+                                        cluster_list.remove(cluster)
+                                    else:
+                                        tgt_cluster = cluster
                 
                 if tgt_cluster is None:
                     tgt_cluster = set()
@@ -233,7 +178,7 @@ class Board:
         for y, orb_row in enumerate(self.board):
             for x, orb in enumerate(orb_row):
                 if (orb[0] != Orbs.CLEARED):
-                    self._erase_orbs2((x, y), orb[0], clusters, all_cleared)
+                    self._erase_orbs((x, y), orb[0], clusters, all_cleared)
         
         # Set orbs to `Cleared` now.
         need_recurse = False
@@ -269,6 +214,7 @@ class Board:
         for color in clusters.keys():
             clusters.update({color: clusters.get(color) + cascade_clusters.get(color)})
 
+        # Return board to original state.
         self.board = saved
 
         return combos, clusters
@@ -293,7 +239,7 @@ class Board:
     
     def get_board(self):
         """
-            Returns the board for hashing.
+            Returns the board for duplication.
         """
         return self.board
 
@@ -316,12 +262,3 @@ class Board:
             string += '\n'
         return string
 
-    def __lt__(self, other):
-        return self.max_combos < other.max_combos
-    
-    def __hash__(self):
-        """
-            Hashing function based on the current board state.
-        """
-        converted = tuple(tuple(row) for row in self.board)
-        return hash(self.board.__str__())

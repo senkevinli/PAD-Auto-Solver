@@ -36,7 +36,7 @@ def detect(
             
             orb_match = _match_img(converted)
             if (orb_match is not None):
-                orb_row.append(orb_match)
+                orb_row.append([orb_match, False])
             else:
                 # Error happened with matching.
                 return None

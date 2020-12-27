@@ -39,6 +39,8 @@ def test_erase_1():
 
     # First `Blue` combo set should be length 11.
     assert len(clusters.get(Orbs.BLUE)[0]) == 11
+    b.sub_cluster(clusters)
+    assert b.get_potential() == 5
 
 def test_erase_2():
     """ Check if it erases all orbs except 1."""
@@ -143,3 +145,13 @@ def test_erase_9():
     combos, clusters = b.calc_combos()
 
     assert combos == 5
+
+def test_erase_10():
+    """ Another complex cascade. """
+    data = parse_json_file('board10')
+    
+    inp = data.get('board_input')
+    b = Board(inp)
+    combos, clusters = b.calc_combos()
+    pprint(clusters)
+    print(combos)

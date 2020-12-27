@@ -3,75 +3,111 @@
 """ Class for simulating/easing board computations """
 import heapq
 import logging
+import concurrent.futures
 
 from .pad_types import Orbs, Directions
 from copy import deepcopy
 from .board import Board
 from typing import List, Tuple
 
+HEAP_SIZE = 10
 
-def solve(raw_orbs, max_path):
+class SolveState:
+    def __init__(
+        self,
+        board: List[List[Orbs]],
+        dir_list: List[Directions],
+        cur: Tuple[int, int]
+    ) -> None:
+        self.board = board
+        self.dir_list = dir_list
+        self.cur = cur
+        combos, clusters = self.board.calc_combos()
+        self.combos = combos
+
+        self.board.sub_cluster(clusters)
+        self.potential = self.board.get_potential() 
+
+    def __lt__(self, other):
+        """
+            Reverse less than function for the heap.
+            Edit this function here if you want to sort 
+            by a different criteria.
+        """
+        if self.combos == other.combos:
+            return self.potential > other.potential
+        return self.combos > other.combos
+
+def solve(
+        raw_orbs,
+        max_path
+    ) -> Tuple[List[Directions], Tuple[int, int], int]:
+    """
+        Solves according to the `raw_orbs` list provided and the
+        `max_path` specified. Returns a tuple of the list of directions
+        to underatke, a starting coordinate, and the number of combos made,
+        respectively.
+    """
     b = Board(raw_orbs)
 
     logging.debug('Try to solve:')
     logging.debug(b)
 
-    max = 0
-    path = None
-    start = None
+    max_combos = 0
+    best = None
+    start = (0, 0)
     visited = set()
     for y, orb_row in enumerate(raw_orbs):
         for x, orb in enumerate(orb_row):
-            cur_max, cur_path = _solve_from((x, y), max_path, b, visited)
-            if cur_max > max:
-                max = cur_max
-                path = cur_path
+            ideal = _solve_from((x, y), max_path, b, visited)
+            if ideal.combos > max_combos:
+                max_combos = ideal.combos
+                best = ideal
                 start = (x, y)
     
-    logging.debug(f'Optimal combos is : {max}')
+    logging.debug(f'Optimal combos is : {max_combos}')
     logging.debug('Path is:')
-    logging.debug(path)
-    return path, start
-            
-def _solve_from(start, max_path, b, visited):
-    visited = set()
-    max_combos = b.max_combos()
+    logging.debug(best.dir_list)
+    return best.dir_list, start, best.combos
+
+def _solve_from(
+        start: Tuple[int, int],
+        max_path: int,
+        b: Board
+    ) -> SolveState:
+    """
+        Takes a step solve from the specified coordinate
+        of `start`. Uses a modified greedy BFS approach
+        with a fixed size priority queue (min heap).
+    """
+    initial_state = SolveState(b, [], start)
+    max_combos = b.get_potential()
+
+    # Our heap/priority queue for greedy BFS.
     h = []
 
-    # First element is the board, second is the list of directions
-    # third is the starting point for the orb.
-    # Use negative priority.
+    heapq.heappush(h, initial_state)
 
-    initial_state = [b, [], start]
-    initial_combos = b.calc_combos()
-    heapq.heappush(
-        h,
-        (initial_combos, id(initial_state), initial_state)
-    )
-
-    visited.add(b.__str__())
-
-    cur_combos = initial_combos
-
-    max_combos_dir = []
+    cur_combos = initial_state.combos
+    ideal = initial_state
 
     # BFS search.
     while len(h) > 0 and cur_combos < max_combos:
-
-        combos, _, (board, dir_list, start) = heapq.heappop(h)
-        
-        combos = abs(combos)
+        prev_state = heapq.heappop(h)
+        combos = prev_state.combos
 
         if combos > cur_combos:
+            ideal = prev_state
             cur_combos = combos
-            max_combos_dir = dir_list
 
-        if len(dir_list) >= max_path:
+        if len(prev_state.dir_list) >= max_path:
             continue
 
         for direction in Directions:
-            if len(dir_list) > 0:
-                last_move = dir_list[-1]
+
+            # Skip redundant move so we don't end up going back.
+            if len(prev_state.dir_list) > 0:
+                last_move = prev_state.dir_list[-1]
                 if direction == Directions.DOWN and last_move == Directions.UP:
                     continue
                 elif direction == Directions.UP and last_move == Directions.DOWN:
@@ -80,45 +116,34 @@ def _solve_from(start, max_path, b, visited):
                     continue
                 elif direction == Directions.RIGHT and last_move == Directions.LEFT:
                     continue
-            x, y = start
+
+            x, y = prev_state.cur
             next_loc = (x + direction.value[0], y + direction.value[1])
 
-            if next_loc[0] < 0 or next_loc[0] >= 6 or next_loc[1] < 0 or next_loc[1] >= 5:
+            if not prev_state.board.in_bounds(next_loc):
                 continue
-            dup = Board(board.get_board())
-            valid = dup.move_orb(start, direction)
+
+            next_board = Board(prev_state.board.get_board())
+            valid = next_board.move_orb(prev_state.cur, direction)
+
             if not valid:
                 continue
-            # if dup.__str__() in visited:
-            #     continue
-            x, y = start
-            next_loc = (x + direction.value[0], y + direction.value[1])
 
-            next_combos = dup.calc_combos()
-
-            combos = next_combos
-            changed_dir_list = deepcopy(dir_list)
+            changed_dir_list = deepcopy(prev_state.dir_list)
             changed_dir_list.append(direction)
 
-            new_state = [dup, changed_dir_list, next_loc]
-            heapq.heappush(
-                h,
-                (-combos, id(new_state), new_state)
-            )
+            next_state = SolveState(next_board, changed_dir_list, next_loc)
 
-            # visited.add(dup.__str__())
-            
-            cur_combos = max(combos, cur_combos)
-            if cur_combos == combos:
-                max_combos_dir = changed_dir_list
+            if next_state.combos > cur_combos:
+                ideal = next_state
+                combos = next_state.combos
 
-            if len(h) > 10:
-                h = heapq.nsmallest(10, h)
+            heapq.heappush(h, next_state)
 
-    
-    # print(len(h) == 0)
-    # print(cur_combos >= max_combos)
-    # print(f'FINAL: {cur_combos}')
+        if len(h) > HEAP_SIZE:
+            h = heapq.nsmallest(HEAP_SIZE, h)
+
+
     logging.debug(f'Final for this iteration is: {cur_combos}')
 
-    return cur_combos, max_combos_dir
+    return ideal
