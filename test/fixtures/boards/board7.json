@@ -1,8 +1,8 @@
 {
     "board_input": [
-        [ "LIGHT", "LIGHT", "LIGHT", "BLUE", "RED", "BLUE" ],
-        [ "RED", "LIGHT", "BLUE", "GREEN", "GREEN", "HEART" ],
-        [ "RED", "LIGHT", "LIGHT", "LIGHT", "HEART", "GREEN" ],
+        [ "LIGHT", "LIGHT", "LIGHT", "BLUE", "HEART", "RED" ],
+        [ "RED", "LIGHT", "BLUE", "GREEN", "BLUE", "HEART" ],
+        [ "RED", "LIGHT", "LIGHT", "LIGHT", "GREEN", "GREEN" ],
         [ "LIGHT", "HEART", "LIGHT", "LIGHT", "LIGHT", "RED" ],
         [ "LIGHT", "LIGHT", "GREEN", "LIGHT", "LIGHT", "LIGHT"]
     ],

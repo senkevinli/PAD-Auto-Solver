@@ -229,19 +229,23 @@ class Board:
         # For tracking the coordinates of everything has been cleared so far.
         all_cleared = { orb: set() for orb in Orbs if orb != Orbs.CLEARED }
 
-        def cleared_to_none():
-            for y, orb_row in enumerate(self.board):
-                for x, orb in enumerate(orb_row):
-                    if (orb == Orbs.CLEARED):
-                        self.board[y][x] = None
-
         combos = 0
         for y, orb_row in enumerate(self.board):
             for x, orb in enumerate(orb_row):
-                if (orb != None):
+                if (orb[0] != Orbs.CLEARED):
                     self._erase_orbs2((x, y), orb[0], clusters, all_cleared)
-        pprint(clusters)
-        return sum([len(values) for values in clusters.values()])
+        
+        # Set orbs to `Cleared` now.
+        need_recurse = False
+        for orb_set in all_cleared.values():
+            for coord in orb_set:
+                need_recurse = True
+                x, y = coord
+                self.board[y][x] = [Orbs.CLEARED, False]
+
+        # Stop if nothing was cleared.
+        if not need_recurse:
+            return 0, clusters
 
         # Simulate cascade.
         for x in range(self.cols):
@@ -249,18 +253,25 @@ class Board:
             bound = self.rows - 1
             for y in range(self.rows - 1, -1, -1):
                 # Populate if not `None`. Skip the other nones for now.
-                if self.board[y][x] != None:
+                if self.board[y][x][0] != Orbs.CLEARED:
                     self.board[bound][x] = self.board[y][x]
                     bound -= 1
             
-            # Fill the rest of the space with `None`
+            # Fill the rest of the space with `Cleared`
             for y in range(bound, -1, -1):
-                self.board[y][x] = None
+                self.board[y][x] = [Orbs.CLEARED, False]
 
-        combos += self.calc_combos()        
-        
+        cascade_combos, cascade_clusters = self.calc_combos()
+
+        # How many clusters for each cluster = how many combos.
+        combos = sum([len(values) for values in clusters.values()]) + cascade_combos
+        # Merge cascade clusters with our clusters.
+        for color in clusters.keys():
+            clusters.update({color: clusters.get(color) + cascade_clusters.get(color)})
+
         self.board = saved
-        return combos
+
+        return combos, clusters
     
     def move_orb(self, src: Tuple[int, int], dir: Directions) -> bool:
         """
