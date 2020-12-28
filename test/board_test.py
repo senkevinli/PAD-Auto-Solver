@@ -21,7 +21,7 @@ def parse_json_file(name: str) -> List[List[Orbs]]:
     with open(name) as f:
         data = json.load(f)
         for key in data.keys():
-            mod_list = [[Orbs[name] for name in row] for row in data.get(key)]
+            mod_list = [[[Orbs[name], False] for name in row] for row in data.get(key)]
             data.update({key: mod_list})
 
     return data

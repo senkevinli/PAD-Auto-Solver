@@ -19,5 +19,5 @@ def test_enhanced_detection():
             orb_list = [[img]]
             
             orb_type = filename[len('enhanced') + 1:-4].upper()
-            assert detect(orb_list)[0][0] == Orbs[orb_type]
+            assert detect(orb_list)[0][0] == [Orbs[orb_type], False]
 
