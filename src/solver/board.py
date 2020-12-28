@@ -2,11 +2,10 @@
 
 """ Class for simulating/easing board computations """
 
-
+from math import ceil
 from .pad_types import Orbs, Directions
 from typing import List, Tuple, Dict, Set
 from copy import deepcopy
-from pprint import pprint
 
 COMBO_LIMIT = 3
 class Board:
@@ -61,22 +60,45 @@ class Board:
         max = 0
         exclude = None
         counts_copy = self.counts.copy()
-        while True:
-            pruned = {k: v for k, v in counts_copy.items() if v >= COMBO_LIMIT}
-            key_list = list(pruned.keys())
 
-            if exclude is not None and len(key_list) == 1 and key_list[0] == exclude:
-                break
+        # Tracks how many combos per color. Sorting works because dictionary keeps
+        # insertion order in Python 3.7+.
+        sorted_dict = {k :v for k, v in 
+                      sorted(self.counts.items(), key=lambda tup: tup[1], reverse=True)}
 
-            # Get the next orb to be excluded and count the combo.
-            exclude = next((orb for orb in key_list if orb != exclude), None)
-            if exclude is None:
-                break
+        free_spaces = self.rows * self.cols // COMBO_LIMIT
+        combos = 0
+        # print(combos)
+        # Loop through sorted dict, largest color combo at the front.
+        for color in sorted_dict:
+            freq = sorted_dict.get(color)
+            to_add = freq // COMBO_LIMIT
+    
+            # If orbs are the same color, cannot be adjacent, must be placed diagonally.
+            # Thus, if we have more orbs than spaces to place them diagonally, we
+            # need to subtract from combos.
+            if freq > COMBO_LIMIT * free_spaces // 2:
+                # How many do we have left over. Subtract this will be adjacent to
+                # our combos?
+                diff = freq - COMBO_LIMIT * free_spaces // 2
+                
+                # Combos hard coded, can be proven.
+                if diff < COMBO_LIMIT:
+                    pass
+                elif diff >= COMBO_LIMIT and diff < COMBO_LIMIT * 2:
+                    to_add -= 2
+                elif diff == COMBO_LIMIT * 2:
+                    to_add -= 3
+                elif diff > COMBO_LIMIT * 2 and diff < COMBO_LIMIT * 3:
+                    to_add -= 5
+                elif diff == COMBO_LIMIT * 3:
+                    to_add -= 6
+                else:
+                    to_add = 1
 
-            pruned.update({exclude: pruned.get(exclude) - COMBO_LIMIT})
-            max += 1
-            counts_copy = pruned
-        return max
+            combos += to_add
+        # print(combos)
+        return combos
 
     def in_bounds(self, coord: Tuple[int, int]) -> bool:
         """
