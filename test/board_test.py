@@ -165,5 +165,5 @@ def test_erase_11():
     
     inp = data.get('board_input')
     b = Board(inp)
-    print(b.get_potential())
     combos, clusters = b.calc_combos()
+    assert b.get_potential() == 6

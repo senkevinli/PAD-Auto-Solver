@@ -85,14 +85,16 @@ class Board:
                 # Combos hard coded, can be proven.
                 if diff < COMBO_LIMIT:
                     pass
-                if diff >= COMBO_LIMIT and diff < COMBO_LIMIT * 2:
+                elif diff >= COMBO_LIMIT and diff < COMBO_LIMIT * 2:
                     to_add -= 2
-                if diff == COMBO_LIMIT * 2:
+                elif diff == COMBO_LIMIT * 2:
                     to_add -= 3
-                if diff > COMBO_LIMIT * 2 and diff < COMBO_LIMIT * 3:
+                elif diff > COMBO_LIMIT * 2 and diff < COMBO_LIMIT * 3:
                     to_add -= 5
-                if diff == COMBO_LIMIT * 3:
+                elif diff == COMBO_LIMIT * 3:
                     to_add -= 6
+                else:
+                    to_add = 1
 
             combos += to_add
         # print(combos)
