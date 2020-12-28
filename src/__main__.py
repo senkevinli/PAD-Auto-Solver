@@ -72,7 +72,7 @@ def _debug(rows, cols, speed, path):
     print('solved.')
     interface.input_swipes(path, start)
 
-def _non_verbose(rows, cols, speed, path):
+def _non_verbose(rows, cols, speed, max_path):
     """ For non-verbose output. With spinners. """
     interface = None
     while True:
@@ -110,7 +110,7 @@ def _non_verbose(rows, cols, speed, path):
             sp.write('> finished detection.')
 
             begin = datetime.now()
-            path, start, combos = solve(detected, path)
+            path, start, combos = solve(detected, max_path)
             end = datetime.now()
 
             delta = end - begin

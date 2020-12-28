@@ -98,9 +98,12 @@ def _solve_from(
         if combos > cur_combos:
             ideal = prev_state
             cur_combos = combos
-
-        if len(prev_state.dir_list) >= max_path:
-            continue
+        try:
+            if (len(prev_state.dir_list)) >= max_path:
+                continue
+        except:
+            print(prev_state.dir_list)
+            print(max_path)
 
         for direction in Directions:
 
