@@ -4,7 +4,7 @@
 
 ![Test](https://github.com/senkevinli/Pad-Auto-Solver/workflows/Tests/badge.svg)
 
-This is a command line interface tool that auto solves Puzzles and Dragon's boards on your connected phone. Currently only optimizes for combos (3+ connected orbs) and does not distinguish between solutions that have the same number of combos.
+Command line interface tool that auto solves Puzzles and Dragon's boards on your connected phone. Currently only optimizes for combos (3+ connected orbs) and does not distinguish between solutions that have the same number of combos.
 
 ![demo](https://github.com/senkevinli/PAD-Auto-Solver/blob/master/demo/solver.gif)
 ## Requirements
