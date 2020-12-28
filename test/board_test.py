@@ -35,6 +35,8 @@ def test_erase_1():
 
     b = Board(input_1)
     combos, clusters = b.calc_combos()
+    
+    assert b.get_potential() == 9
     assert combos == 1
 
     # First `Blue` combo set should be length 11.
@@ -54,6 +56,7 @@ def test_erase_2():
     assert combos == 1
     assert len(clusters.get(Orbs.LIGHT)) == 1
     assert len(clusters.get(Orbs.LIGHT)[0]) == 29
+    assert b.get_potential() == 1
 
 def test_erase_3():
     """ Trying another pattern."""
@@ -153,5 +156,14 @@ def test_erase_10():
     inp = data.get('board_input')
     b = Board(inp)
     combos, clusters = b.calc_combos()
-    pprint(clusters)
-    print(combos)
+
+    assert combos == 6
+
+def test_erase_11():
+    """ Trying potential """
+    data = parse_json_file('board11')
+    
+    inp = data.get('board_input')
+    b = Board(inp)
+    print(b.get_potential())
+    combos, clusters = b.calc_combos()
